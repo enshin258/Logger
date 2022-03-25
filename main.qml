@@ -1,8 +1,24 @@
 import QtQuick
+import "qml"
+import "qml/utilities"
 
 Window {
-  width: 640
-  height: 480
+  id: root
+
+  width: 1200
+  height: 900
+
   visible: true
-  title: qsTr("Hello World")
+  title: qsTr("Logger")
+
+  Theme {
+    id: theme
+  }
+
+  MainPage {
+    id: mainPage
+
+    anchors.fill: parent
+  }
+
 }
