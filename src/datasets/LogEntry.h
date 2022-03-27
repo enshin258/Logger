@@ -3,8 +3,6 @@
 #include <QObject>
 #include <QDateTime>
 
-
-
 class LogEntry : public QObject
 {
     Q_OBJECT
@@ -14,7 +12,6 @@ class LogEntry : public QObject
     Q_PROPERTY(LogPriority priority READ priority WRITE setPriority NOTIFY priorityChanged)
 
 public:
-
     enum class LogPriority {
         DEBUG,
         INFO,

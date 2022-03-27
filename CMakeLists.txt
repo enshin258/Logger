@@ -11,6 +11,8 @@ qt_add_executable(Logger
     main.cpp
     src/models/LoggerDataModel.h
     src/models/LoggerDataModel.cpp
+    src/models/LoggerDataSortFilterProxyModel.h
+    src/models/LoggerDataSortFilterProxyModel.cpp
     src/datasets/LogEntry.h
     src/datasets/LogEntry.cpp
     src/controllers/ExternalAppsController.h
@@ -22,10 +24,12 @@ qt_add_qml_module(Logger
     VERSION 1.0
     QML_FILES
     qml/utilities/Theme.qml
+    qml/panels/LogsPanel.qml
     qml/MainPage.qml
     main.qml
 )
 
+add_subdirectory(testApps)
 
 set_target_properties(Logger PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

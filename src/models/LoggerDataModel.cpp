@@ -6,18 +6,36 @@ LoggerDataModel::LoggerDataModel(QObject *parent)
     beginResetModel();
     m_logEntries.clear();
 
-    for (int i=0; i < 3; i++) {
-        LogEntry *entry = new LogEntry(this);
+    LogEntry *entry1 = new LogEntry(this);
+    LogEntry *entry2 = new LogEntry(this);
+    LogEntry *entry3 = new LogEntry(this);
+    LogEntry *entry4 = new LogEntry(this);
 
-        entry->setId(i);
-        entry->setDateTime(QDateTime::currentDateTime());
+    entry1->setId(1);
+    entry1->setDateTime(QDateTime::fromMSecsSinceEpoch(100000));
+    entry1->setContent("AAA");
+    entry1->setPriority(LogEntry::LogPriority::DEBUG);
 
-        QString content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vitae lorem nec odio mollis ullamcorper nec at enim. Phasellus feugiat, felis nec fringilla sodales, lorem ante tristique eros, id placerat justo libero eget lacus. Mauris nulla est, sollicitudin vitae purus eu, lobortis sodales dui. Duis quis urna id turpis pharetra vulputate et eu odio. Etiam ac feugiat urna. Nunc in volutpat neque, id rutrum diam. Aliquam ultrices lectus vitae lorem fringilla elementum. Mauris ut nunc quis dolor sollicitudin pretium id sit amet risus. Praesent id mollis risus. Morbi consequat vitae est ac hendrerit.";
-        entry->setContent(content);
-        entry->setPriority(LogEntry::LogPriority::WARNING);
-        m_logEntries.append(entry);
+    entry2->setId(2);
+    entry2->setDateTime(QDateTime::fromMSecsSinceEpoch(200000));
+    entry2->setContent("BBB");
+    entry2->setPriority(LogEntry::LogPriority::ERROR);
 
-    }
+    entry3->setId(3);
+    entry3->setDateTime(QDateTime::fromMSecsSinceEpoch(300000));
+    entry3->setContent("CCC");
+    entry3->setPriority(LogEntry::LogPriority::INFO);
+
+    entry4->setId(4);
+    entry4->setDateTime(QDateTime::fromMSecsSinceEpoch(400000));
+    entry4->setContent("DDD");
+    entry4->setPriority(LogEntry::LogPriority::WARNING);
+
+    m_logEntries.append(entry1);
+    m_logEntries.append(entry2);
+    m_logEntries.append(entry3);
+    m_logEntries.append(entry4);
+
     endResetModel();
 }
 

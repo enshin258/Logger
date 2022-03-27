@@ -3,21 +3,29 @@
 #include <QQmlContext>
 
 #include "src/models/LoggerDataModel.h"
+#include "src/models/LoggerDataSortFilterProxyModel.h"
 #include "src/controllers/ExternalAppsController.h"
 
 int main(int argc, char *argv[])
 {
-
     QGuiApplication app(argc, argv);
 
-
     LoggerDataModel *loggerDataModel = new LoggerDataModel(&app);
+    LoggerDataSortFilterProxyModel *loggerDataSortFilterProxtModel = new LoggerDataSortFilterProxyModel(&app);
+    loggerDataSortFilterProxtModel->setSourceModel(loggerDataModel);
+    loggerDataSortFilterProxtModel->setSortRole(LoggerDataModel::IdRole);
+    loggerDataSortFilterProxtModel->sort(0, Qt::AscendingOrder);
+
     ExternalAppsController *externalAppsController = new ExternalAppsController(loggerDataModel, &app);
 
     QQmlApplicationEngine engine;
 
-    engine.rootContext()->setContextProperty("loggerDataModel", loggerDataModel);
+
+    qmlRegisterType<LoggerDataModel>("logger.extra",1, 0, "LoggerDataModel");
+
+    engine.rootContext()->setContextProperty("loggerDataModel", loggerDataSortFilterProxtModel);
     engine.rootContext()->setContextProperty("externalAppsController", externalAppsController);
+
 
     const QUrl url(u"qrc:/Logger/main.qml"_qs);
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
