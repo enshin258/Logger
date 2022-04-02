@@ -1,10 +1,11 @@
 import QtQuick
 import logger.extra 1.0
+import "../elements"
 
 Rectangle {
   id: root
 
-  color: theme.backgroundLightColor
+  color: theme.backgroundColor
 
   border {
     width: 2
@@ -40,20 +41,17 @@ Rectangle {
         property var headerRole
 
         height: parent.height
-        color: headerRole === loggerDataModel.sortRole ? (loggerDataModel.sortOrder === Qt.AscendingOrder? "green" : "red") : theme.foregroundColor
+        color: headerRole === loggerDataModel.sortRole ? (loggerDataModel.sortOrder === Qt.AscendingOrder? theme.greenColor : theme.redColor) : theme.foregroundColor
 
         border {
           width: 2
-          color: theme.defaultTextColor
+          color: theme.backgroundLightColor
         }
 
-        Text {
-          anchors.centerIn: parent
+        AppText {
+          anchors.fill: parent
 
           text: headerText
-
-          verticalAlignment: Text.AlignVCenter
-          horizontalAlignment: Text.AlignHCenter
         }
 
         MouseArea {
@@ -119,76 +117,72 @@ Rectangle {
     clip: true
 
     model: loggerDataModel
-    spacing: 10
 
     delegate: Rectangle {
       width: logsListView.width
       height: contentText.height
 
-      color: theme.foregroundColor
+      color: "transparent"
 
       Row {
         anchors.fill: parent
 
         spacing: 0
 
-        Text {
+        component LogText: AppText {
+          id: logText
+
+          font.pixelSize: 12
+
+          color: switch(priority) {
+                 case "DEBUG":
+                   theme.debugTextColor
+                   break
+                 case "INFO":
+                   theme.infoTextColor
+                   break
+                 case "WARNING":
+                   theme.warningTextColor
+                   break
+                 case "ERROR":
+                   theme.errorTextColor
+                   break
+                 }
+        }
+
+        LogText {
           id: idText
 
           width: parent.width * 1/16
 
           text: id
-
-          horizontalAlignment: Text.AlignHCenter
-          verticalAlignment: Text.AlignVCenter
-
-          color: priority === "ERROR" ? theme.errorTextColor : theme.defaultTextColor
         }
 
-        Text {
+        LogText {
           id: dateTimeText
 
           width: parent.width * 4/16
 
-
           text: dateTime
-
-          horizontalAlignment: Text.AlignHCenter
-          verticalAlignment: Text.AlignVCenter
-
-          color: priority === "ERROR" ? theme.errorTextColor : theme.defaultTextColor
-
         }
 
-        Text {
+        LogText {
           id: priorityText
 
           width: parent.width * 3/16
 
-
           text: priority
-
-          horizontalAlignment: Text.AlignHCenter
-          verticalAlignment: Text.AlignVCenter
-
-          color: priority === "ERROR" ? theme.errorTextColor : theme.defaultTextColor
-
         }
 
-        Text {
+        LogText {
           id: contentText
 
           width: parent.width * 8/16
 
-          text: content
+          text: content.trim()
 
-          horizontalAlignment: Text.AlignHCenter
-          verticalAlignment: Text.AlignVCenter
-
+          horizontalAlignment: Text.AlignLeft
           wrapMode: Text.WrapAnywhere
-
-          color: priority === "ERROR" ? theme.errorTextColor : theme.defaultTextColor
-
         }
       }
     }

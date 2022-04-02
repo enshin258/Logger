@@ -12,18 +12,24 @@ const QString &ExternalAppsController::externalAppPath() const
 
 void ExternalAppsController::setExternalAppPath(const QString &newExternalAppPath)
 {
-    if (m_externalAppPath == newExternalAppPath)
+    if (m_externalAppPath == newExternalAppPath) {
         return;
+    }
+
     m_externalAppPath = newExternalAppPath;
     emit externalAppPathChanged();
+
+    if (m_externalAppRunning) {
+        stopExternalApp();
+    }
 }
 
 void ExternalAppsController::runExternalApp()
 {
-    QProcess *process = new QProcess(this);
+    m_externalAppProcess = new QProcess(this);
 
-    connect(process, &QProcess::readyReadStandardOutput, this, [this, process](){
-        QByteArray output = process->readAllStandardOutput();
+    connect(m_externalAppProcess, &QProcess::readyReadStandardOutput, this, [this](){
+        QByteArray output = m_externalAppProcess->readAllStandardOutput();
 
         LogEntry *entry = new LogEntry(m_loggerDataModel);
         entry->setId(m_loggerDataModel->rowCount());
@@ -34,28 +40,50 @@ void ExternalAppsController::runExternalApp()
         m_loggerDataModel->addLogEntry(entry);
     });
 
-    connect(process, &QProcess::readyReadStandardError, this, [this, process](){
+    connect(m_externalAppProcess, &QProcess::readyReadStandardError, this, [this](){
 
-        QByteArray output = process->readAllStandardError();
+        QByteArray output = m_externalAppProcess->readAllStandardError();
 
         LogEntry *entry = new LogEntry(m_loggerDataModel);
         entry->setId(m_loggerDataModel->rowCount());
         entry->setDateTime(QDateTime::currentDateTime());
-        entry->setPriority(LogEntry::LogPriority::WARNING);
+        entry->setPriority(LogEntry::LogPriority::ERRORR);
         entry->setContent(output);
 
         m_loggerDataModel->addLogEntry(entry);
     });
 
 
-    QString programPath = m_externalAppPath.remove(0,8);
-    qDebug() << "Starting program: " <<programPath;
-    process->setCreateProcessArgumentsModifier([] (QProcess::CreateProcessArguments *args)
+    connect(m_externalAppProcess, &QProcess::finished, this, [this](){
+        setExternalAppRunning(false);
+    });
+
+
+    qDebug() << "Starting program: " <<m_externalAppPath;
+    m_externalAppProcess->setCreateProcessArgumentsModifier([] (QProcess::CreateProcessArguments *args)
     {
         args->flags |= CREATE_NEW_CONSOLE;
 
     });
-    process->start(programPath);
+    m_externalAppProcess->start(m_externalAppPath);
+    setExternalAppRunning(true);
 }
 
+void ExternalAppsController::stopExternalApp()
+{
+    m_externalAppProcess->kill();
+    setExternalAppRunning(false);
+}
 
+bool ExternalAppsController::externalAppRunning() const
+{
+    return m_externalAppRunning;
+}
+
+void ExternalAppsController::setExternalAppRunning(bool newExternalAppRunning)
+{
+    if (m_externalAppRunning == newExternalAppRunning)
+        return;
+    m_externalAppRunning = newExternalAppRunning;
+    emit externalAppRunningChanged();
+}

@@ -6,14 +6,16 @@
 int main() 
 { 
     srand((unsigned)time(0)); 
+
     while(true) {
-        int i;
-        i = (rand()%20)+1;
+        int i = (rand()%20)+1;
+
         if (i < 10) {
-            std::cout << "Generated digit -> " << i << std::endl; 
+            std::cout << "Generated digit: " << i << std::endl;
         } else {
-            std::cerr << "Generated number !!! -> " << i << std::endl;
+            std::cerr << "Generated number!: " << i << std::endl;
         }
+
         Sleep(100);
     }
 

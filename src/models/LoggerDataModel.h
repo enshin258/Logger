@@ -28,8 +28,11 @@ public:
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
 
+    void clearLogs();
+
 public slots:
     void addLogEntry(LogEntry *logEntry);
+    LogEntry* getLogEntry(int index);
 
 private:
     QList<LogEntry*> m_logEntries;

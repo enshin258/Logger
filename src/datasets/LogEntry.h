@@ -16,7 +16,8 @@ public:
         DEBUG,
         INFO,
         WARNING,
-        ERROR
+        // i know that this is misspeling but ERROR is defined as macro in wingdi.h file
+        ERRORR
     };
     Q_ENUM(LogPriority)
 

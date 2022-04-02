@@ -23,8 +23,14 @@ qt_add_qml_module(Logger
     URI Logger
     VERSION 1.0
     QML_FILES
+    qml/elements/AppText.qml
+    qml/elements/AppButton.qml
     qml/utilities/Theme.qml
     qml/panels/LogsPanel.qml
+    qml/panels/NetworkPanel.qml
+    qml/panels/FilePanel.qml
+    qml/panels/ExecutablePanel.qml
+    qml/panels/SearchingAndFilteringPanel.qml
     qml/MainPage.qml
     main.qml
 )

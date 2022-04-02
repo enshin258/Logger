@@ -2,7 +2,14 @@
 
 LoggerDataSortFilterProxyModel::LoggerDataSortFilterProxyModel(QObject *parent) : QSortFilterProxyModel(parent)
 {
+    connect(this, &LoggerDataSortFilterProxyModel::sortRoleChanged, this, [this]() {
+        this->sort(0, m_sortOrder);
+    });
+    connect(this, &LoggerDataSortFilterProxyModel::sortOrderChanged, this, [this]() {
+        this->sort(0, m_sortOrder);
+    });
 
+    invalidateFilter();
 }
 
 
@@ -19,33 +26,56 @@ void LoggerDataSortFilterProxyModel::setSortOrder(Qt::SortOrder newSortOrder)
     emit sortOrderChanged();
 }
 
-const LogEntry::LogPriority &LoggerDataSortFilterProxyModel::priorityFilter() const
-{
-    return m_priorityFilter;
-}
-
-void LoggerDataSortFilterProxyModel::setPriorityFilter(const LogEntry::LogPriority &newPriorityFilter)
-{
-    if (m_priorityFilter == newPriorityFilter)
-        return;
-    m_priorityFilter = newPriorityFilter;
-    emit priorityFilterChanged();
-    invalidateFilter();
-}
-
-
 bool LoggerDataSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-
     QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
 
-    if (sourceIndex.isValid()) {
-        if (m_filteringEnabled) {
-            LogEntry *logEntry = static_cast<LogEntry*>(sourceIndex.internalPointer());
+    bool filteringEnbaled = !m_contentFilter.isEmpty() ||
+            m_debugFilter == false ||
+            m_infoFilter == false ||
+            m_warningFilter == false ||
+            m_errorFilter == false;
 
-            if (logEntry->priority() != m_priorityFilter) {
+    if (sourceIndex.isValid()) {
+        if (filteringEnbaled) {
+
+            LoggerDataModel *sourceLoggerModel = dynamic_cast<LoggerDataModel*>(sourceModel());
+            LogEntry *logEntry = sourceLoggerModel->getLogEntry(sourceIndex.row());
+
+            if (!(logEntry->content().contains(m_contentFilter, Qt::CaseInsensitive))) {
                 return false;
             }
+
+            switch(logEntry->priority()) {
+            case LogEntry::LogPriority::DEBUG: {
+                if (!m_debugFilter) {
+                    return false;
+                }
+                break;
+            }
+            case LogEntry::LogPriority::INFO: {
+                if (!m_infoFilter) {
+                    return false;
+                }
+                break;
+
+            }
+            case LogEntry::LogPriority::WARNING: {
+                if (!m_warningFilter) {
+                    return false;
+                }
+                break;
+
+            }
+            case LogEntry::LogPriority::ERRORR: {
+                if (!m_errorFilter) {
+                    return false;
+                }
+                break;
+            }
+            }
+
+            return true;
         }
 
         return true;
@@ -56,8 +86,6 @@ bool LoggerDataSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QMode
 
 bool LoggerDataSortFilterProxyModel::lessThan(const QModelIndex &sourceLeft, const QModelIndex &sourceRight) const
 {
-    qDebug() << "LEST THAN";
-    qDebug() << "SORT ROLE: " << this->sortRole();
     const QVariant leftData = sourceModel()->data(sourceLeft, sortRole());
     const QVariant rightData = sourceModel()->data(sourceRight, sortRole());
 
@@ -86,8 +114,9 @@ bool LoggerDataSortFilterProxyModel::lessThan(const QModelIndex &sourceLeft, con
 
     case LoggerDataModel::PriorityRole:
     {
-        const auto &leftPriority = leftData.toString();
-        const auto &rightPriority = rightData.toString();
+
+        const auto &leftPriority = getPriorityValue(leftData.toString());
+        const auto &rightPriority = getPriorityValue(rightData.toString());
 
         return leftPriority < rightPriority;
     }
@@ -95,16 +124,93 @@ bool LoggerDataSortFilterProxyModel::lessThan(const QModelIndex &sourceLeft, con
     return false;
 }
 
-bool LoggerDataSortFilterProxyModel::filteringEnabled() const
+const QString &LoggerDataSortFilterProxyModel::contentFilter() const
 {
-    return m_filteringEnabled;
+    return m_contentFilter;
 }
 
-void LoggerDataSortFilterProxyModel::setFilteringEnabled(bool newFilteringEnabled)
+void LoggerDataSortFilterProxyModel::setContentFilter(const QString &newContentFilter)
 {
-    if (m_filteringEnabled == newFilteringEnabled)
+    if (m_contentFilter == newContentFilter)
         return;
-    m_filteringEnabled = newFilteringEnabled;
-    emit filteringEnabledChanged();
+    m_contentFilter = newContentFilter;
+    emit contentFilterChanged();
+    invalidateFilter();
 }
 
+bool LoggerDataSortFilterProxyModel::debugFilter() const
+{
+    return m_debugFilter;
+}
+
+void LoggerDataSortFilterProxyModel::setDebugFilter(bool newDebugFilter)
+{
+    if (m_debugFilter == newDebugFilter)
+        return;
+    m_debugFilter = newDebugFilter;
+    emit debugFilterChanged();
+    invalidateFilter();
+}
+
+bool LoggerDataSortFilterProxyModel::infoFilter() const
+{
+    return m_infoFilter;
+}
+
+void LoggerDataSortFilterProxyModel::setInfoFilter(bool newInfoFilter)
+{
+    if (m_infoFilter == newInfoFilter)
+        return;
+    m_infoFilter = newInfoFilter;
+    emit infoFilterChanged();
+    invalidateFilter();
+}
+
+bool LoggerDataSortFilterProxyModel::warningFilter() const
+{
+    return m_warningFilter;
+}
+
+void LoggerDataSortFilterProxyModel::setWarningFilter(bool newWarningFilter)
+{
+    if (m_warningFilter == newWarningFilter)
+        return;
+    m_warningFilter = newWarningFilter;
+    emit warningFilterChanged();
+    invalidateFilter();
+}
+
+bool LoggerDataSortFilterProxyModel::errorFilter() const
+{
+    return m_errorFilter;
+}
+
+void LoggerDataSortFilterProxyModel::setErrorFilter(bool newErrorFilter)
+{
+    if (m_errorFilter == newErrorFilter)
+        return;
+    m_errorFilter = newErrorFilter;
+    emit errorFilterChanged();
+    invalidateFilter();
+}
+
+int LoggerDataSortFilterProxyModel::getPriorityValue(const QString priority) const
+{
+    if (priority == "DEBUG") {
+        return 1;
+    } else if (priority == "INFO") {
+        return 2;
+    } else if (priority == "WARNING") {
+        return 3;
+    } else if (priority == "ERROR") {
+        return 4;
+    } else {
+        return 0;
+    }
+}
+
+void LoggerDataSortFilterProxyModel::clearLogs()
+{
+    LoggerDataModel *sourceLoggerModel = dynamic_cast<LoggerDataModel*>(sourceModel());
+    sourceLoggerModel->clearLogs();
+}

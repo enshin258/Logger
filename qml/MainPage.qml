@@ -11,7 +11,7 @@ Item {
 
     anchors.fill: parent
 
-    color: theme.backgroundColor
+    color: theme.backgroundLightColor
 
     LogsPanel {
       id: logsPanel
@@ -20,64 +20,51 @@ Item {
         top: parent.top
         left: parent.left
         right: parent.right
+        bottom: panelsItem.top
+        margins: 20
+      }
+    }
 
+    Column {
+      id: panelsItem
+
+      anchors {
+        left: parent.left
+        right: parent.right
+        bottom: parent.bottom
         margins: 20
       }
 
-      height: parent.height * 3/4
-    }
+      height: 400
+      spacing: 20
 
-    Button {
-      id: chooseExeFileButton
-      anchors {
-        bottom: parent.bottom
-        bottomMargin: 50
-        right: parent.horizontalCenter
+      SearchingAndFilteringPanel {
+        id: searchingAndFilteringPanel
+
+        width: parent.width
+        height: 80
       }
 
-      width: 100
-      height: 100
+      ExecutablePanel {
+        id: executablePanel
 
-      text: "choose .exe file"
-
-      onClicked: {
-        fileDialog.open()
-      }
-    }
-
-    Button {
-      id: startExeButton
-      anchors {
-        bottom: parent.bottom
-        bottomMargin: 50
-        left: parent.horizontalCenter
+        width: parent.width
+        height: 80
       }
 
-      width: 100
-      height: 100
+      FilePanel {
+        id: filePanel
 
-      text: "start exe!"
-
-      enabled: externalAppsController.externalAppPath !== ""
-
-      opacity: enabled? 1 : 0.2
-
-      onClicked: {
-        externalAppsController.runExternalApp();
+        width: parent.width
+        height: 80
       }
-    }
 
-    FileDialog {
-      id: fileDialog
+      NetworkPanel {
+        id: networkPanel
 
-      onAccepted: {
-        console.log("You chose: " + fileDialog.currentFile)
-        externalAppsController.externalAppPath = fileDialog.currentFile
-      }
-      onRejected: {
-        console.log("Canceled")
+        width: parent.width
+        height: 80
       }
     }
   }
-
 }

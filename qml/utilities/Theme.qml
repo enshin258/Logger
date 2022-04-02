@@ -3,17 +3,18 @@ import QtQuick
 QtObject {
   id: root
 
-  readonly property color backgroundColor: "white"
-  readonly property color backgroundLightColor: "#F2F7F6"
+  readonly property color backgroundColor: "#2e2f30"
+  readonly property color backgroundLightColor: "#404142"
+  readonly property color foregroundColor: "#535455"
+  readonly property color borderColor: "#323334"
 
-  readonly property color foregroundColor: "#F6F5F3"
-  readonly property color borderColor: "#EB5E28"
+  readonly property color greenColor: "#92bd6c"
+  readonly property color redColor: "#e17f7f"
 
-  readonly property color defaultTextColor: "#252422"
+  readonly property color defaultTextColor: "white"
 
-  readonly property color debugTextColor: "#020202"
-  readonly property color infoTextColor: "#B2B5B7"
-  readonly property color warningTextColor: "#F9DC5C"
-  readonly property color errorTextColor: "#EB5E28"
-
+  readonly property color debugTextColor: defaultTextColor
+  readonly property color infoTextColor: "yellow"
+  readonly property color warningTextColor: "orange"
+  readonly property color errorTextColor: "red"
 }

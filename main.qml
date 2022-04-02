@@ -6,7 +6,9 @@ Window {
   id: root
 
   width: 1200
+  minimumWidth: 800
   height: 900
+  minimumHeight: 600
 
   visible: true
   title: qsTr("Logger")

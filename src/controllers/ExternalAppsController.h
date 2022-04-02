@@ -8,6 +8,7 @@
 class ExternalAppsController : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool externalAppRunning READ externalAppRunning WRITE setExternalAppRunning NOTIFY externalAppRunningChanged)
     Q_PROPERTY(QString externalAppPath READ externalAppPath WRITE setExternalAppPath NOTIFY externalAppPathChanged)
 
 public:
@@ -16,15 +17,21 @@ public:
     const QString &externalAppPath() const;
     void setExternalAppPath(const QString &newExternalAppPath);
 
+    bool externalAppRunning() const;
+    void setExternalAppRunning(bool newExternalAppRunning);
+
 public slots:
     void runExternalApp();
+    void stopExternalApp();
 
 signals:
     void externalAppPathChanged();
+    void externalAppRunningChanged();
 
 private:
-    QString m_externalAppPath;
+    QString m_externalAppPath = "";
     LoggerDataModel *m_loggerDataModel = nullptr;
-
+    bool m_externalAppRunning = false;
+    QProcess *m_externalAppProcess = nullptr;
 };
 
