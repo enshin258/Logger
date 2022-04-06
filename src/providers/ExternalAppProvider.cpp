@@ -1,16 +1,16 @@
-#include "ExternalAppsController.h"
+#include "ExternalAppProvider.h"
 #include "Windows.h"
 
-ExternalAppsController::ExternalAppsController(LoggerDataModel *loggerDataModel, QObject *parent) : QObject(parent),
+ExternalAppProvider::ExternalAppProvider(LoggerDataModel *loggerDataModel, QObject *parent) : QObject(parent),
     m_loggerDataModel(loggerDataModel)
 {}
 
-const QString &ExternalAppsController::externalAppPath() const
+const QString &ExternalAppProvider::externalAppPath() const
 {
     return m_externalAppPath;
 }
 
-void ExternalAppsController::setExternalAppPath(const QString &newExternalAppPath)
+void ExternalAppProvider::setExternalAppPath(const QString &newExternalAppPath)
 {
     if (m_externalAppPath == newExternalAppPath) {
         return;
@@ -24,7 +24,7 @@ void ExternalAppsController::setExternalAppPath(const QString &newExternalAppPat
     }
 }
 
-void ExternalAppsController::runExternalApp()
+void ExternalAppProvider::runExternalApp()
 {
     m_externalAppProcess = new QProcess(this);
 
@@ -34,7 +34,7 @@ void ExternalAppsController::runExternalApp()
         LogEntry *entry = new LogEntry(m_loggerDataModel);
         entry->setId(m_loggerDataModel->rowCount());
         entry->setDateTime(QDateTime::currentDateTime());
-        entry->setPriority(LogEntry::LogPriority::DEBUG);
+        entry->setPriority(LogEntry::LogPriority::DEBUG_PRIORITY);
         entry->setContent(output);
 
         m_loggerDataModel->addLogEntry(entry);
@@ -47,7 +47,7 @@ void ExternalAppsController::runExternalApp()
         LogEntry *entry = new LogEntry(m_loggerDataModel);
         entry->setId(m_loggerDataModel->rowCount());
         entry->setDateTime(QDateTime::currentDateTime());
-        entry->setPriority(LogEntry::LogPriority::ERRORR);
+        entry->setPriority(LogEntry::LogPriority::ERROR_PRIORITY);
         entry->setContent(output);
 
         m_loggerDataModel->addLogEntry(entry);
@@ -69,18 +69,18 @@ void ExternalAppsController::runExternalApp()
     setExternalAppRunning(true);
 }
 
-void ExternalAppsController::stopExternalApp()
+void ExternalAppProvider::stopExternalApp()
 {
     m_externalAppProcess->kill();
     setExternalAppRunning(false);
 }
 
-bool ExternalAppsController::externalAppRunning() const
+bool ExternalAppProvider::externalAppRunning() const
 {
     return m_externalAppRunning;
 }
 
-void ExternalAppsController::setExternalAppRunning(bool newExternalAppRunning)
+void ExternalAppProvider::setExternalAppRunning(bool newExternalAppRunning)
 {
     if (m_externalAppRunning == newExternalAppRunning)
         return;

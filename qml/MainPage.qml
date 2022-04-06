@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import Qt.labs.platform
 import "panels"
+import "elements"
 
 Item {
   id: root
@@ -64,6 +65,66 @@ Item {
 
         width: parent.width
         height: 80
+      }
+    }
+
+    Popup {
+      id: infoPopup
+
+      property string infoText: ""
+
+      width: 300
+      height: 150
+
+      dim: true
+
+      anchors.centerIn: parent
+
+      background: Rectangle {
+        color: theme.backgroundColor
+        border {
+          width: 3
+          color: theme.backgroundLightColor
+        }
+
+        radius: 30
+      }
+
+      contentItem: Item {
+        AppText {
+          id: message
+
+          anchors {
+            top: parent.top
+            horizontalCenter: parent.horizontalCenter
+            margins: 20
+          }
+
+          text: infoPopup.infoText
+        }
+
+        AppButton {
+          id: closeButton
+
+          anchors {
+            bottom: parent.bottom
+            horizontalCenter: parent.horizontalCenter
+            margins: 20
+          }
+
+          text: "Close"
+
+          background: Rectangle {
+            color: theme.foregroundColor
+          }
+
+          width: 100
+          height: 30
+
+          onClicked: {
+            infoPopup.close()
+          }
+        }
       }
     }
   }

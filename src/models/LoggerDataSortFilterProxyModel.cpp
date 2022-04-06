@@ -12,7 +12,6 @@ LoggerDataSortFilterProxyModel::LoggerDataSortFilterProxyModel(QObject *parent) 
     invalidateFilter();
 }
 
-
 Qt::SortOrder LoggerDataSortFilterProxyModel::sortOrder() const
 {
     return m_sortOrder;
@@ -28,60 +27,65 @@ void LoggerDataSortFilterProxyModel::setSortOrder(Qt::SortOrder newSortOrder)
 
 bool LoggerDataSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
+    if (!sourceParent.isValid()) {
+        QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
 
-    bool filteringEnbaled = !m_contentFilter.isEmpty() ||
-            m_debugFilter == false ||
-            m_infoFilter == false ||
-            m_warningFilter == false ||
-            m_errorFilter == false;
+        bool filteringEnbaled = !m_contentFilter.isEmpty() ||
+                !m_debugFilter ||
+                !m_infoFilter ||
+                !m_warningFilter ||
+                !m_errorFilter;
 
-    if (sourceIndex.isValid()) {
-        if (filteringEnbaled) {
+        if (sourceIndex.isValid()) {
+            if (filteringEnbaled) {
 
-            LoggerDataModel *sourceLoggerModel = dynamic_cast<LoggerDataModel*>(sourceModel());
-            LogEntry *logEntry = sourceLoggerModel->getLogEntry(sourceIndex.row());
+                LoggerDataModel *sourceLoggerModel = dynamic_cast<LoggerDataModel*>(sourceModel());
+                LogEntry *logEntry = sourceLoggerModel->getLogEntry(sourceIndex.row());
 
-            if (!(logEntry->content().contains(m_contentFilter, Qt::CaseInsensitive))) {
-                return false;
-            }
-
-            switch(logEntry->priority()) {
-            case LogEntry::LogPriority::DEBUG: {
-                if (!m_debugFilter) {
+                if (!(logEntry->content().contains(m_contentFilter, Qt::CaseInsensitive))) {
                     return false;
                 }
-                break;
-            }
-            case LogEntry::LogPriority::INFO: {
-                if (!m_infoFilter) {
-                    return false;
-                }
-                break;
 
-            }
-            case LogEntry::LogPriority::WARNING: {
-                if (!m_warningFilter) {
-                    return false;
+                switch(logEntry->priority()) {
+                case LogEntry::LogPriority::DEBUG_PRIORITY: {
+                    if (!m_debugFilter) {
+                        return false;
+                    }
+                    break;
                 }
-                break;
+                case LogEntry::LogPriority::INFO_PRIORITY: {
+                    if (!m_infoFilter) {
+                        return false;
+                    }
+                    break;
 
-            }
-            case LogEntry::LogPriority::ERRORR: {
-                if (!m_errorFilter) {
-                    return false;
                 }
-                break;
-            }
+                case LogEntry::LogPriority::WARNING_PRIORITY: {
+                    if (!m_warningFilter) {
+                        return false;
+                    }
+                    break;
+
+                }
+                case LogEntry::LogPriority::ERROR_PRIORITY: {
+                    if (!m_errorFilter) {
+                        return false;
+                    }
+                    break;
+                }
+                }
+
+                return true;
             }
 
             return true;
         }
 
-        return true;
+        return false;
     }
-
-    return false;
+    else {
+        return false;
+    }
 }
 
 bool LoggerDataSortFilterProxyModel::lessThan(const QModelIndex &sourceLeft, const QModelIndex &sourceRight) const
@@ -99,8 +103,8 @@ bool LoggerDataSortFilterProxyModel::lessThan(const QModelIndex &sourceLeft, con
     }
     case LoggerDataModel::DateTimeRole:
     {
-        const auto &leftDate = leftData.toDateTime();
-        const auto &rightDate = rightData.toDateTime();
+        const auto &leftDate = QDateTime::fromString(rightData.toString(), "dd.MM.yyyy-hh:mm:ss.z");
+        const auto &rightDate = QDateTime::fromString(leftData.toString(), "dd.MM.yyyy-hh:mm:ss.z");
 
         return leftDate < rightDate;
     }
@@ -114,7 +118,6 @@ bool LoggerDataSortFilterProxyModel::lessThan(const QModelIndex &sourceLeft, con
 
     case LoggerDataModel::PriorityRole:
     {
-
         const auto &leftPriority = getPriorityValue(leftData.toString());
         const auto &rightPriority = getPriorityValue(rightData.toString());
 
@@ -209,8 +212,14 @@ int LoggerDataSortFilterProxyModel::getPriorityValue(const QString priority) con
     }
 }
 
-void LoggerDataSortFilterProxyModel::clearLogs()
+void LoggerDataSortFilterProxyModel::startSimulation()
 {
     LoggerDataModel *sourceLoggerModel = dynamic_cast<LoggerDataModel*>(sourceModel());
-    sourceLoggerModel->clearLogs();
+    sourceLoggerModel->startSimulation();
+}
+
+void LoggerDataSortFilterProxyModel::stopSimulation()
+{
+    LoggerDataModel *sourceLoggerModel = dynamic_cast<LoggerDataModel*>(sourceModel());
+    sourceLoggerModel->stopSimulation();
 }

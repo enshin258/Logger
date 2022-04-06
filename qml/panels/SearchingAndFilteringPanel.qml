@@ -35,27 +35,11 @@ Rectangle {
     }
   }
 
-  AppButton {
-    id: clearButton
-
-    anchors {
-      left: parent.left
-      margins: 20
-      verticalCenter: parent.verticalCenter
-    }
-
-    text: "Clear logs"
-
-    onClicked: {
-      loggerDataModel.clearLogs()
-    }
-  }
-
   TextField {
     id: searchField
 
     anchors {
-      left: clearButton.right
+      left: parent.left
       right: typeFiltersRow.left
       margins: 20
       verticalCenter: parent.verticalCenter
@@ -74,8 +58,8 @@ Rectangle {
       border.color: searchField.focus ? theme.greenColor : theme.backgroundLightColor
     }
 
-    onTextChanged: {
-      loggerDataModel.contentFilter = searchField.text
+    onDisplayTextChanged: {
+      loggerDataModel.contentFilter = searchField.displayText
     }
   }
 
@@ -127,7 +111,7 @@ Rectangle {
       text: "Debug"
 
       onCheckedChanged: {
-        loggerDataModel.debugFilter = checked
+        loggerDataModel.debugFilter = debugFilter.checked
       }
     }
 
@@ -137,7 +121,7 @@ Rectangle {
       text: "Info"
 
       onCheckedChanged: {
-        loggerDataModel.infoFilter = checked
+        loggerDataModel.infoFilter = infoFilter.checked
       }
     }
 
@@ -147,7 +131,7 @@ Rectangle {
       text: "Warning"
 
       onCheckedChanged: {
-        loggerDataModel.warningFilter = checked
+        loggerDataModel.warningFilter = warningFilter.checked
       }
     }
 
@@ -157,7 +141,7 @@ Rectangle {
       text: "Error"
 
       onCheckedChanged: {
-        loggerDataModel.errorFilter = checked
+        loggerDataModel.errorFilter = errorFilter.checked
       }
     }
   }

@@ -57,9 +57,14 @@ Rectangle {
         MouseArea {
           anchors.fill: parent
           onClicked: {
-            console.log("Header clicked")
             loggerDataModel.sortOrder = loggerDataModel.sortOrder === Qt.AscendingOrder? Qt.DescendingOrder: Qt.AscendingOrder
-            loggerDataModel.sortRole = header.headerRole;
+            loggerDataModel.sortRole = header.headerRole
+          }
+        }
+
+        Behavior on color {
+          PropertyAnimation {
+            duration: 200
           }
         }
       }
@@ -188,7 +193,7 @@ Rectangle {
     }
 
     Connections {
-      target: loggerDataModel
+      target: loggerDataModelOriginal
 
       function onRowsInserted() {
         logsListView.positionViewAtEnd()

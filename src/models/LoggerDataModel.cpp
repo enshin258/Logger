@@ -3,91 +3,79 @@
 LoggerDataModel::LoggerDataModel(QObject *parent)
     : QAbstractListModel{parent}
 {
-    beginResetModel();
-    m_logEntries.clear();
+    m_timer = new QTimer(this);
+    connect(m_timer, &QTimer::timeout, this, [this]() {
 
-    LogEntry *entry1 = new LogEntry(this);
-    LogEntry *entry2 = new LogEntry(this);
-    LogEntry *entry3 = new LogEntry(this);
-    LogEntry *entry4 = new LogEntry(this);
+        LogEntry *entry = new LogEntry(this);
 
-    entry1->setId(1);
-    entry1->setDateTime(QDateTime::fromMSecsSinceEpoch(100000));
-    entry1->setContent("Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-                       " Quisque sit amet luctus sem. Nullam id pharetra mi, non pellentesque dui."
-                       " Quisque in nunc ut turpis iaculis vestibulum. Etiam malesuada justo ut nulla tincidunt maximus."
-                       " Quisque tincidunt lacus nulla, eu porttitor tellus placerat vel."
-                       " Integer consequat turpis id eros egestas maximus.");
-    entry1->setPriority(LogEntry::LogPriority::DEBUG);
+        entry->setId(this->rowCount());
+        entry->setDateTime(QDateTime::currentDateTime());
 
-    entry2->setId(2);
-    entry2->setDateTime(QDateTime::fromMSecsSinceEpoch(200000));
-    entry2->setContent("Main method started"
-                       "Exception in thread main java.lang.StackOverflowError"
-                       "at com.program.stackoverflow.Factorial.factorial(Factorial.java:9)"
-                       "at com.program.stackoverflow.Factorial.factorial(Factorial.java:9)"
-                       "at com.program.stackoverflow.Factorial.factorial(Factorial.java:9)");
-    entry2->setPriority(LogEntry::LogPriority::ERRORR);
+        int random = QRandomGenerator::global()->bounded(0, 4);
 
-    entry3->setId(3);
-    entry3->setDateTime(QDateTime::fromMSecsSinceEpoch(300000));
-    entry3->setContent("AAA");
-    entry3->setPriority(LogEntry::LogPriority::INFO);
+        switch(random) {
+        case 0:
+            entry->setContent("Normal debug message");
+            entry->setPriority(LogEntry::LogPriority::DEBUG_PRIORITY);
+            break;
+        case 1:
+            entry->setContent("Some information from the work of the program");
+            entry->setPriority(LogEntry::LogPriority::INFO_PRIORITY);
+            break;
+        case 2:
+            entry->setContent("Oh, something went wrong, warning!");
+            entry->setPriority(LogEntry::LogPriority::WARNING_PRIORITY);
+            break;
+        case 3:
+            entry->setContent("CRITICAL ERROR!!!");
+            entry->setPriority(LogEntry::LogPriority::ERROR_PRIORITY);
+            break;
+        }
 
-    entry4->setId(4);
-    entry4->setDateTime(QDateTime::fromMSecsSinceEpoch(400000));
-    entry4->setContent("TEST");
-    entry4->setPriority(LogEntry::LogPriority::WARNING);
-
-    m_logEntries.append(entry1);
-    m_logEntries.append(entry2);
-    m_logEntries.append(entry3);
-    m_logEntries.append(entry4);
-
-    endResetModel();
-}
-
-LoggerDataModel::~LoggerDataModel()
-{
-    m_logEntries.clear();
+        addLogEntry(entry);
+    });
 }
 
 int LoggerDataModel::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent);
-    return m_logEntries.length();
+{    
+    if (!parent.isValid()) {
+        return m_logEntries.getItemsCount();
+    }
+    return 0;
 }
 
 int LoggerDataModel::columnCount(const QModelIndex &parent) const
 {
-    Q_UNUSED(parent);
-    return 4;
+    if (!parent.isValid()) {
+       return 1;
+    }
+    return 0;
 }
 
 QVariant LoggerDataModel::data(const QModelIndex &index, int role) const
 {
-    if (index.isValid() && index.row() < m_logEntries.length()) {
-        const auto &logEntry = m_logEntries[index.row()];
+    if (index.isValid() && index.row() < m_logEntries.getItemsCount()) {
+        const auto logEntry = m_logEntries.getItemAtIndex(index.row());
 
         switch ((Roles) role) {
         case LoggerDataModel::IdRole:
             return logEntry->id();
         case LoggerDataModel::DateTimeRole:
-            return logEntry->dateTime().toString("dd.MM.yyyy - hh:mm:ss.z");
+            return logEntry->dateTime().toString("dd.MM.yyyy-hh:mm:ss.z");
         case LoggerDataModel::ContentRole:
             return logEntry->content();
         case LoggerDataModel::PriorityRole:
             switch(logEntry->priority()) {
-            case LogEntry::LogPriority::DEBUG: {
+            case LogEntry::LogPriority::DEBUG_PRIORITY: {
                 return "DEBUG";
             }
-            case LogEntry::LogPriority::ERRORR: {
+            case LogEntry::LogPriority::ERROR_PRIORITY: {
                 return "ERROR";
             }
-            case LogEntry::LogPriority::INFO: {
+            case LogEntry::LogPriority::INFO_PRIORITY: {
                 return "INFO";
             }
-            case LogEntry::LogPriority::WARNING: {
+            case LogEntry::LogPriority::WARNING_PRIORITY: {
                 return "WARNING";
             }
             }
@@ -107,23 +95,24 @@ QHash<int, QByteArray> LoggerDataModel::roleNames() const
     return roles;
 }
 
-void LoggerDataModel::clearLogs()
-{
-    beginResetModel();
-    m_logEntries.clear();
-    endResetModel();
-}
-
 void LoggerDataModel::addLogEntry(LogEntry *logEntry)
 {
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
-    qDebug() << "ADDING LOG ENTRY WITH CONTENT: " << logEntry->content();
-
-    m_logEntries.append(logEntry);
+    m_logEntries.appendItemToVector(logEntry);
     endInsertRows();
 }
 
 LogEntry* LoggerDataModel::getLogEntry(int index)
 {
-    return m_logEntries[index];
+    return m_logEntries.getItemAtIndex(index);
+}
+
+void LoggerDataModel::startSimulation()
+{
+    m_timer->start(200);
+}
+
+void LoggerDataModel::stopSimulation()
+{
+    m_timer->stop();
 }
