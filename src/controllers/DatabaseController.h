@@ -52,7 +52,6 @@ public slots:
     bool initDatabase();
 
 signals:
-
     /*!
      * \brief databaseFileNameChanged signal is emmited when database file name changes
      */
